@@ -317,16 +317,58 @@ class EmpleadoController extends Controller
     public function recientes()
     {
         try {
+            // Verificar conexión a la base de datos primero
+            DB::connection()->getPdo();
+            
+            // Verificar si la tabla existe
+            if (!DB::getSchemaBuilder()->hasTable('empleados')) {
+                Log::error('La tabla empleados no existe en la base de datos');
+                return response()->json([
+                    'error' => 'La tabla de empleados no existe',
+                    'mensaje' => 'Error de configuración: La tabla empleados no se encuentra en la base de datos. Por favor, ejecute las migraciones.',
+                    'data' => [],
+                    'total' => 0
+                ], 500);
+            }
+            
+            // Intentar obtener los empleados
             $empleados = Empleado::orderBy('updated_at', 'desc')
                                 ->paginate(20);
+            
+            Log::info('Empleados recientes obtenidos correctamente', [
+                'total' => $empleados->total(),
+                'items' => count($empleados->items())
+            ]);
             
             return response()->json([
                 'data' => $empleados->items(),
                 'total' => $empleados->total()
             ]);
+        } catch (\PDOException $e) {
+            Log::error('Error de conexión a la base de datos al obtener empleados recientes: ' . $e->getMessage(), [
+                'code' => $e->getCode(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'error' => 'Error de conexión a la base de datos',
+                'mensaje' => 'No se pudo conectar a la base de datos. Verifique la configuración en el archivo .env',
+                'data' => [],
+                'total' => 0
+            ], 500);
         } catch (\Exception $e) {
-            Log::error('Error al obtener empleados recientes: ' . $e->getMessage());
-            return response()->json(['error' => 'Error al obtener los empleados recientes'], 500);
+            Log::error('Error al obtener empleados recientes: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'error' => 'Error al obtener los empleados recientes',
+                'mensaje' => $e->getMessage(),
+                'data' => [],
+                'total' => 0
+            ], 500);
         }
     }
 

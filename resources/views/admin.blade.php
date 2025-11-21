@@ -10,7 +10,7 @@
   <meta name="description" content="" />
   <meta name="author" content="" />
   <meta name="keywords" content="" />
-  <meta name="csrf-token" content="iorh6kkMTq7f5aJ3V9oTu2c0lTCjOcED6fDDzyfi">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <link href="{{ asset('images/favicon.png') }}" rel="shortcut icon" type="image/vnd.microsoft.icon" />
 
 
@@ -182,7 +182,8 @@
               </a>
 
               <form id="logout-form" action="{{ url('salir') }}" method="POST" class="d-none">
-                <input type="hidden" name="_token" value="iorh6kkMTq7f5aJ3V9oTu2c0lTCjOcED6fDDzyfi">                </form>
+                @csrf
+              </form>
             </div>
           </div>
         </div>
@@ -372,8 +373,58 @@
           read: {
             url: "{{ route('empleados.recientes') }}",
             type: "GET",
-            dataType: "json"
+            dataType: "json",
+            beforeSend: function(xhr) {
+              xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+              xhr.setRequestHeader('X-CSRF-TOKEN', $('meta[name="csrf-token"]').attr('content'));
+              xhr.setRequestHeader('Accept', 'application/json');
+            }
+          },
+          parameterMap: function(options, operation) {
+            if (operation === "read") {
+              return {
+                page: options.page,
+                pageSize: options.pageSize,
+                sort: options.sort,
+                filter: options.filter
+              };
+            }
+            return options;
           }
+        },
+        error: function(e) {
+          console.error('Error en el DataSource:', e);
+          
+          let mensajeError = 'Error al cargar los datos';
+          let mensajeDetalle = 'No se pudieron recuperar los datos del servidor.';
+          
+          if (e.xhr) {
+            try {
+              const respuesta = JSON.parse(e.xhr.responseText);
+              if (respuesta.mensaje) {
+                mensajeDetalle = respuesta.mensaje;
+              } else if (respuesta.error) {
+                mensajeDetalle = respuesta.error;
+              }
+            } catch (parseError) {
+              console.error('Error al parsear respuesta:', parseError);
+            }
+            
+            // Mostrar mensaje de error en el grid
+            $("#grid").html(
+              '<div class="alert alert-danger p-5 text-center">' +
+              '<i class="mdi mdi-alert-circle-outline fs-1 d-block mb-2"></i>' +
+              '<h5>' + mensajeError + '</h5>' +
+              '<p>' + mensajeDetalle + '</p>' +
+              '<div class="mt-3">' +
+              '<button class="btn btn-outline-danger mt-2" onclick="location.reload()">Reintentar</button>' +
+              '</div>' +
+              '</div>'
+            );
+          }
+          
+          // Cancelar el error para evitar que Kendo muestre su mensaje por defecto
+          e.preventDefault();
         },
         schema: {
           data: "data",
@@ -392,6 +443,13 @@
               created_at: { type: "date" },
               status: { type: "string" }
             }
+          },
+          errors: function(response) {
+            // Manejar errores en la respuesta
+            if (response.error) {
+              return response.error;
+            }
+            return false;
           }
         },
         pageSize: 20,
