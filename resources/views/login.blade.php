@@ -61,15 +61,9 @@
                             <div class="row my-auto justify-content-center mb-0 mb-sm-5 mb-md-3 ">
                                 <div class="col-12 col-sm-8 col-md-10 text-center">
                                     <!-- <h1 class="text-uppercase">Declaranet</h1> -->
-<<<<<<< HEAD
                                     <h2 class="mb-3">Sistema de Nombramientos</h2>
                                     <p class="">
                                     Plataforma digital para la gestión integral de los nombramientos de los servidores públicos del Gobierno del Estado de Sonora. Este sistema permite registrar, consultar y dar seguimiento a la trayectoria de los funcionarios de manera eficiente y segura
-=======
-                                    <h2 class="mb-3">SISTEMA DE NOMBRAMIENTOS</h2>
-                                    <p class="">
-                                        Plataforma digital para la gestión integral de los nombramientos de los servidores públicos del Gobierno del Estado de Sonora. Este sistema permite registrar, consultar y dar seguimiento a la trayectoria de los funcionarios de manera eficiente y segura.
->>>>>>> 428518b7aa7ba8950691fdf966d5101f0d445de0
                                     </p>
                                 </div>
                             </div>
