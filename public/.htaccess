@@ -5,6 +5,12 @@
 
     RewriteEngine On
 
+    # Force HTTPS (comentar si no tienes SSL configurado)
+    # Descomenta las siguientes líneas cuando tengas certificado SSL instalado
+    # RewriteCond %{HTTPS} off
+    # RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
